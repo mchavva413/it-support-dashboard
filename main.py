@@ -1,9 +1,10 @@
-from fastapi import FastAPI
+kfrom fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import psutil
 
 app = FastAPI()
 
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,8 +16,12 @@ app.add_middleware(
 tickets = []
 
 @app.get("/")
-def home():
+def root():
     return {"message": "IT Support API running"}
+
+@app.get("/docs-test")
+def docs_test():
+    return {"msg": "docs route exists"}
 
 @app.get("/system")
 def system_status():
