@@ -4,7 +4,6 @@ import psutil
 
 app = FastAPI()
 
-# CORS (important for frontend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
