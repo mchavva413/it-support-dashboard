@@ -4,7 +4,7 @@ import psutil
 
 app = FastAPI()
 
-# ✅ CORS FIX (VERY IMPORTANT)
+# CORS (important for frontend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,30 +13,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Ticket storage
 tickets = []
 
 @app.get("/")
 def home():
-    return {"message": "IT Support System Running"}
+    return {"message": "IT Support API running"}
 
 @app.get("/system")
 def system_status():
     return {
-        "CPU": psutil.cpu_percent(),
-        "Memory": psutil.virtual_memory().percent,
-        "Disk": psutil.disk_usage('/').percent
+        "cpu": psutil.cpu_percent(),
+        "memory": psutil.virtual_memory().percent,
+        "disk": psutil.disk_usage('/').percent
     }
 
 @app.get("/alert")
 def alerts():
-    cpu = psutil.cpu_percent()
-    alerts = []
-
-    if cpu > 80:
-        alerts.append("High CPU usage detected")
-
-    return {"alerts": alerts}
+    return {"alerts": []}
 
 @app.get("/tickets")
 def get_tickets():
@@ -44,10 +37,6 @@ def get_tickets():
 
 @app.post("/ticket")
 def create_ticket(issue: str):
-    ticket = {
-        "id": len(tickets) + 1,
-        "issue": issue,
-        "status": "open"
-    }
+    ticket = {"id": len(tickets) + 1, "issue": issue}
     tickets.append(ticket)
     return ticket
