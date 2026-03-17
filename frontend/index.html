@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IT Support Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f8;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        button {
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input {
+            padding: 8px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>IT Support Dashboard</h1>
+
+<div class="card">
+    <h2>System Status</h2>
+    <p id="cpu">CPU: Loading...</p>
+    <p id="memory">Memory: Loading...</p>
+    <p id="disk">Disk: Loading...</p>
+</div>
+
+<div class="card">
+    <h2>Alerts</h2>
+    <ul id="alerts"></ul>
+</div>
+
+<div class="card">
+    <h2>Create Ticket</h2>
+    <input type="text" id="issue" placeholder="Enter issue">
+    <button onclick="createTicket()">Submit</button>
+</div>
+
+<div class="card">
+    <h2>Tickets</h2>
+    <ul id="tickets"></ul>
+</div>
+
+<script>
+
+async function loadSystem() {
+    const res = await fetch("http://127.0.0.1:8000/system");
+    const data = await res.json();
+
+    document.getElementById("cpu").innerText = "CPU: " + data.CPU + "%";
+    document.getElementById("memory").innerText = "Memory: " + data.Memory + "%";
+    document.getElementById("disk").innerText = "Disk: " + data.Disk + "%";
+}
+
+async function loadAlerts() {
+    const res = await fetch("http://127.0.0.1:8000/alert");
+    const data = await res.json();
+
+    let list = document.getElementById("alerts");
+    list.innerHTML = "";
+
+    if (data.alerts.length === 0) {
+        list.innerHTML = "<li>No alerts</li>";
+    }
+
+    data.alerts.forEach(a => {
+        let li = document.createElement("li");
+        li.innerText = a;
+        list.appendChild(li);
+    });
+}
+
+async function loadTickets() {
+    const res = await fetch("http://127.0.0.1:8000/tickets");
+    const data = await res.json();
+
+    let list = document.getElementById("tickets");
+    list.innerHTML = "";
+
+    data.forEach(t => {
+        let li = document.createElement("li");
+        li.innerText = t.issue + " (" + t.status + ")";
+        list.appendChild(li);
+    });
+}
+
+async function createTicket() {
+    const issue = document.getElementById("issue").value;
+
+    await fetch(`http://127.0.0.1:8000/ticket?issue=${issue}`, {
+        method: "POST"
+    });
+
+    document.getElementById("issue").value = "";
+    loadTickets();
+}
+
+function refresh() {
+    loadSystem();
+    loadAlerts();
+    loadTickets();
+}
+
+refresh();
+
+// auto refresh every 5 seconds
+setInterval(refresh, 5000);
+
+</script>
+
+</body>
+</html>
